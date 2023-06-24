@@ -30,23 +30,36 @@ async function run() {
     const reviewCollection = client.db('bistroDB').collection('reviews');
     const cartCollection = client.db('bistroDB').collection('carts');
 
-    app.get('/menu', async(req, res) => {
+    app.get('/menu', async (req, res) => {
       const result = await menuCollection.find().toArray();
       res.send(result)
     })
 
-    app.get('/reviews', async(req, res) => {
+    app.get('/reviews', async (req, res) => {
       const result = await reviewCollection.find().toArray();
       res.send(result)
     })
 
-    app.post('/carts', async(req, res) => {
+    //carts
+    app.get('/carts', async (req, res) => {
+      const email = req.query.email;
+      if (!email) {
+        res.send([])
+      }
+      else {
+        const query = { email: email };
+        const result = await cartCollection.find(query).toArray();
+        res.send(result);
+      }
+    });
+
+    app.post('/carts', async (req, res) => {
       const item = req.body;
       console.log(item)
       const result = await cartCollection.insertOne(item);
       res.send(result)
     })
-    
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -59,9 +72,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('Bistro Boss is running')
+  res.send('Bistro Boss is running')
 })
 
 app.listen(port, () => {
-    console.log(`Bistro Boss is running on: ${port}`)
+  console.log(`Bistro Boss is running on: ${port}`)
 })
