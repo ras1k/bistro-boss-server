@@ -52,6 +52,7 @@ async function run() {
     const menuCollection = client.db('bistroDB').collection('menu');
     const reviewCollection = client.db('bistroDB').collection('reviews');
     const cartCollection = client.db('bistroDB').collection('carts');
+    const paymentCollection = client.db('bistroDB').collection('payments');
 
     //jwt
     app.post('/jwt', (req, res) => {
@@ -197,6 +198,13 @@ async function run() {
       })
     })
 
+    //payments
+    app.post('/payments', verifyJWT, async (req, res) => {
+      const payment = req.body;
+      const result = await paymentCollection.insertOne(payment);
+      res.send(result)
+    })
+    
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
