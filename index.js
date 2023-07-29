@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const nodemailer = require("nodemailer");
 
 // const stripe = require('stripe')(process.env.PAYMENT_SECRET_KEY);
 const Stripe = require('stripe');
@@ -15,6 +16,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+//jwt
 const verifyJWT = (req, res, next) => {
   const authorization = req.headers.authorization;
   if (!authorization) {
@@ -30,6 +32,33 @@ const verifyJWT = (req, res, next) => {
     req.decoded = decoded;
     next();
   })
+}
+
+//email transporter
+let transporter = nodemailer.createTransport({
+  host: 'smtp.sendgrid.net',
+  port: 587,
+  auth: {
+    user: "apikey",
+    pass: process.env.SENDGRID_API_KEY
+  }
+})
+
+//email confirmation
+const sendEmailConfirmation = () => {
+  transporter.sendMail({
+    from: "SENDER_EMAIL", // verified sender email
+    to: "RECIPIENT_EMAIL", // recipient email
+    subject: "Test message subject", // Subject line
+    text: "Hello world!", // plain text body
+    html: "<b>Hello world!</b>", // html body
+  }, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
 }
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.iiyr61g.mongodb.net/?retryWrites=true&w=majority`;
